@@ -43,7 +43,7 @@ pipeline {
         }
         stage('DeployToProduction') {
             steps {
-                input 'Deploy to Production'
+                // input 'Deploy to Production'
                 sh """
                     echo "Production Deployment Successfull"
                 """ 

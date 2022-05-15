@@ -1,8 +1,7 @@
 pipeline {
     agent any
     environment {
-        //be sure to replace "bhavukm" with your own Docker Hub username
-        DOCKER_IMAGE_NAME = "bhavukm/train-schedule"
+        DOCKER_IMAGE_NAME = "aromaljosephkm/test:website"
     }
     stages {
         stage('Build') {
@@ -13,12 +12,9 @@ pipeline {
             }
         }
         stage('Build Docker Image') {
-            // when {
-            //     branch 'master'
-            // }
             steps {
                 script {
-                    app = docker.build(DOCKER_IMAGE_NAME)
+                    app = docker.build("aromaljosephkm/test:website")
                     app.inside {
                         sh 'echo Hello, World!'
                     }
@@ -26,9 +22,6 @@ pipeline {
             }
         }
         // stage('Push Docker Image') {
-        //     // when {
-        //     //     branch 'master'
-        //     // }
         //     steps {
         //         script {
         //             docker.withRegistry('https://registry.hub.docker.com', 'docker_hub_login') {
@@ -39,41 +32,19 @@ pipeline {
         //     }
         // }
         stage('CanaryDeploy') {
-            // when {
-            //     branch 'master'
-            // }
-            environment { 
-                CANARY_REPLICAS = 1
-            }
+            sh """
+                kubectl apply -f train-schedule-kube-canary.yml
+            """
+            
+        }
+        stage('DeployToProduction') {
             steps {
-                kubernetesDeploy(
-                    kubeconfigId: 'kubeconfig',
-                    configs: 'train-schedule-kube-canary.yml',
-                    enableConfigSubstitution: true
-                )
+                input 'Deploy to Production'
+                sh """
+                    kubectl apply -f train-schedule-kube.yml
+                """
+                
             }
         }
-        // stage('DeployToProduction') {
-        //     // when {
-        //     //     branch 'master'
-        //     // }
-        //     environment { 
-        //         CANARY_REPLICAS = 0
-        //     }
-        //     steps {
-        //         input 'Deploy to Production?'
-        //         milestone(1)
-        //         kubernetesDeploy(
-        //             kubeconfigId: 'kubeconfig',
-        //             configs: 'train-schedule-kube-canary.yml',
-        //             enableConfigSubstitution: true
-        //         )
-        //         kubernetesDeploy(
-        //             kubeconfigId: 'kubeconfig',
-        //             configs: 'train-schedule-kube.yml',
-        //             enableConfigSubstitution: true
-        //         )
-        //     }
-        // }
     }
 }

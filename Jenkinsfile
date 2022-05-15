@@ -1,7 +1,7 @@
 pipeline {
     agent any
     environment {
-        DOCKER_IMAGE_NAME = "aromaljosephkm/test:1"
+        DOCKER_IMAGE_NAME = "aromaljosephkm/test"
     }
     stages {
         stage('Build') {
@@ -13,15 +13,12 @@ pipeline {
         }
         stage('Build Docker Image') {
             steps {
-                // script {
-                //     app = docker.build("aromaljosephkm/test:1")
-                //     app.inside {
-                //         sh 'echo Hello, World!'
-                //     }
-                // }
-                sh """
-                    echo "Image Build Successfull"
-                """
+                script {
+                    app = docker.build(DOCKER_IMAGE_NAME)
+                    app.inside {
+                        sh 'echo Hello, World!'
+                    }
+                }
             }
         }
         // stage('Push Docker Image') {
@@ -37,16 +34,19 @@ pipeline {
         stage('CanaryDeploy') {
             steps {
                 sh """
-                    echo "Canary Deployment Successfull"
-                """
-            } 
+                kubectl apply -f train-schedule-kube-canary.yml
+            """
+            }
+            
+            
         }
         stage('DeployToProduction') {
             steps {
-                // input 'Deploy to Production'
+                input 'Deploy to Production'
                 sh """
-                    echo "Production Deployment Successfull"
-                """ 
+                    kubectl apply -f train-schedule-kube.yml
+                """
+                
             }
         }
     }

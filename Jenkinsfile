@@ -32,18 +32,18 @@ pipeline {
         //     }
         // }
         stage('CanaryDeploy') {
-            sh """
-                kubectl apply -f train-schedule-kube-canary.yml
-            """
-            
+            steps {
+                sh """
+                    kubectl apply -f train-schedule-kube-canary.yml
+                """
+            } 
         }
         stage('DeployToProduction') {
             steps {
                 input 'Deploy to Production'
                 sh """
                     kubectl apply -f train-schedule-kube.yml
-                """
-                
+                """ 
             }
         }
     }

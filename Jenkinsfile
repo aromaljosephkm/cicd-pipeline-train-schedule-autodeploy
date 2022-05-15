@@ -13,12 +13,15 @@ pipeline {
         }
         stage('Build Docker Image') {
             steps {
-                script {
-                    app = docker.build("aromaljosephkm/test:1")
-                    app.inside {
-                        sh 'echo Hello, World!'
-                    }
-                }
+                // script {
+                //     app = docker.build("aromaljosephkm/test:1")
+                //     app.inside {
+                //         sh 'echo Hello, World!'
+                //     }
+                // }
+                sh """
+                    echo "Image Build Successfull"
+                """
             }
         }
         // stage('Push Docker Image') {

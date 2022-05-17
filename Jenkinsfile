@@ -2,6 +2,7 @@ pipeline {
     agent any
     environment {
         DOCKER_IMAGE_NAME = "aromaljosephkm/test"
+        DOCKERHUB_CREDENTIALS=credentials('dockerhub')
     }
     stages {
         stage('Build') {
@@ -31,6 +32,15 @@ pipeline {
         //         }
         //     }
         // }
+
+        stage('Login') {
+
+			steps {
+				sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
+                sh 'docker push $DOCKER_IMAGE_NAME'
+			}
+		}
+
         stage('CanaryDeploy') {
             steps {
                 sh """
